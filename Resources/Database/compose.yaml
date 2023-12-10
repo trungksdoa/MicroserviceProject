@@ -1,0 +1,50 @@
+version: '3.8'
+services:
+  course_postgres:
+    image: 'postgres:latest'
+    environment:
+      - 'POSTGRES_DB=courseDB'
+      - 'POSTGRES_PASSWORD=123456'
+      - 'POSTGRES_USER=admin'
+    ports:
+      - '5433:5432'
+    volumes:
+      - course_postgres_data:/var/lib/postgresql/data
+  user_postgres:
+    image: 'postgres:latest'
+    environment:
+      - 'POSTGRES_DB=userDB'
+      - 'POSTGRES_PASSWORD=123456'
+      - 'POSTGRES_USER=admin'
+    ports:
+      - '5434:5432'
+    volumes:
+      - user_postgres_data:/var/lib/postgresql/data
+  auth_postgres:
+    image: 'postgres:latest'
+    environment:
+      - 'POSTGRES_DB=jwtTokenDB'
+      - 'POSTGRES_PASSWORD=123456'
+      - 'POSTGRES_USER=admin'
+    ports:
+      - '5435:5432'
+    volumes:
+      - auth_postgres_data:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@postgres.com
+      PGADMIN_DEFAULT_PASSWORD: 123456
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    ports:
+      - "5050:80"
+
+volumes:
+  course_postgres_data:
+  user_postgres_data:
+  auth_postgres_data:
+  pgadmin_data:
