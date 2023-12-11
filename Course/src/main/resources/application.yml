@@ -32,6 +32,3 @@ eureka:
     serviceUrl:
       defaultZone: http://localhost:8761/eureka
 
-service:
-  course:
-      id: courseService

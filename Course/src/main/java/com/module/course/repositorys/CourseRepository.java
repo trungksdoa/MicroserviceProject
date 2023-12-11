@@ -30,4 +30,6 @@ public interface CourseRepository extends JpaRepository<Course, String> {
 
     @Query(value = "SELECT c.courseType FROM Course c WHERE c.courseId = ?1 and c.status = 'ACTIVE'")
     public boolean checkCourseAttempt(String courseId);
+
+    Optional<Course> findByCourseName(String courseName);
 }

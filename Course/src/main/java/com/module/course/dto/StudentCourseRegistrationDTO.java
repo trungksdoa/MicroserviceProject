@@ -6,20 +6,12 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Builder
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-@ToString
+@Getter
+@Setter
 public class StudentCourseRegistrationDTO {
-    @JsonProperty("studentId")
     private String studentId;
-    @JsonProperty("studentName")
     private String studentName;
-    @JsonProperty("courseId")
     private String courseId;
-
-    @JsonProperty("courseName")
     private String courseName;
 
 

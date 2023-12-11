@@ -1,57 +1,47 @@
 package com.module.userservice.restTemplate;
 
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.module.userservice.enums.HttpMethods;
 import com.module.userservice.model.BaseResponse;
+import com.module.userservice.model.ErrorResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.http.*;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
 
-import java.net.URL;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+import java.util.Collections;
 
 
 @Slf4j
 @RequiredArgsConstructor
+@Component
 public class RestCall {
 
-    private final String baseUrl;
-    @SneakyThrows
-    public BaseResponse doCall(HttpMethods method, String forwardUrl) {
-        HttpRequest request = buildRequest(method, forwardUrl, null);
-        return sendRequest(request);
-    }
+    private final UrlServiceInerface serviceInerface;
+    private final RestTemplate restTemplate;
+
 
     @SneakyThrows
-    public BaseResponse doCall(HttpMethods method, String forwardUrl, Object data) {
-        HttpRequest request = buildRequest(method, forwardUrl, data);
-        return sendRequest(request);
-    }
+    public BaseResponse call(HttpMethod method, String serviceName, String url, String apiVersion, Object body) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        HttpEntity<Object> entity = new HttpEntity<>(body, headers);
 
-    private HttpRequest buildRequest(HttpMethods method, String forwardUrl, Object data) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        String uri = UriComponentsBuilder.fromHttpUrl(baseUrl)
-                .pathSegment("api", "v1", forwardUrl)
-                .toUriString();
-
-        HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
-                .uri(new URL(uri).toURI())
-                .method(method.name(), data == null ? HttpRequest.BodyPublishers.noBody() : HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(data)));
-
-        if (data != null) {
-            requestBuilder.header("Content-Type", "application/json");
+        String serviceUrl = serviceInerface.getServicesUrl(serviceName);
+        String fullUrl = serviceUrl + "/" + apiVersion + url;
+        ResponseEntity<BaseResponse> respone = null;
+        try {
+            respone = restTemplate.exchange(fullUrl, method, entity, BaseResponse.class);
+        } catch (HttpClientErrorException e) {
+            ErrorResponse error = new ObjectMapper().readValue(e.getResponseBodyAsString(), ErrorResponse.class);
+            System.out.println(error.getMessage());
+            // Now you have a model of the error response and can handle it appropriately.
         }
 
-        return requestBuilder.build();
+        return respone.getBody();
     }
-
-    @SneakyThrows
-    private BaseResponse sendRequest(HttpRequest request) {
-        HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
-        return new ObjectMapper().readValue(response.body(), BaseResponse.class);
-    }
-
 }

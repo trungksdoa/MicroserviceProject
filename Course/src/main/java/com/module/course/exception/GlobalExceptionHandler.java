@@ -1,6 +1,6 @@
 package com.module.course.exception;
 
-import com.module.course.dto.BaseRespone;
+import com.module.course.dto.BaseResponse;
 import com.module.course.model.ErrorResponse;
 import com.module.course.model.ErrorValidateDetail;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.util.NestedServletException;
 
 import java.time.LocalDateTime;
@@ -25,23 +24,23 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ResponseEntity<BaseRespone> handleException(Exception ex, HttpServletRequest request) {
+    public ResponseEntity<ErrorResponse> handleException(Exception ex, HttpServletRequest request) {
         int status = getStatusFromException(ex);
         ErrorResponse errorResponse = new ErrorResponse(status, "Internal Server Error", ex.getMessage());
-        errorResponse.setPath(request.getMethod() + "::" + request.getRequestURI());
+//        errorResponse.setPath(request.getMethod() + "::" + request.getRequestURI());
         errorResponse.setTimeStamp(getTimestamp());
 
-        BaseRespone response = BaseRespone.builder()
-                .timeStamp(null)
-                .message(ex.getStackTrace().toString())
-                .data(errorResponse)
-                .build();
-        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+//    @ExceptionHandler(DataAlreadyExistsException.class)
+//    public ResponseEntity<String> handleDataAlreadyExistsException(DataAlreadyExistsException ex) {
+//        return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
+//    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<BaseRespone> handleValidationException(MethodArgumentNotValidException ex, HttpServletRequest request) {
+    public ResponseEntity<BaseResponse> handleValidationException(MethodArgumentNotValidException ex, HttpServletRequest request) {
         List<ErrorValidateDetail> errorDetails = new ArrayList<>();
         ex.getBindingResult().getAllErrors().forEach(error -> {
             String field = ((FieldError) error).getField();
@@ -58,7 +57,7 @@ public class GlobalExceptionHandler {
         errorResponse.setPath(request.getMethod() + "::" + request.getRequestURI());
         errorResponse.setTimeStamp(getTimestamp());
 
-        BaseRespone response = BaseRespone.builder()
+        BaseResponse response = BaseResponse.builder()
                 .timeStamp(null)
                 .message("Error in request validation.")
                 .data(errorResponse)
@@ -76,7 +75,7 @@ public class GlobalExceptionHandler {
             return ((ResponseStatusException) ((NestedServletException) ex).getRootCause()).getBody().getStatus();
         } else if (ex instanceof NoSuchElementException || ex instanceof NullPointerException) {
             return HttpStatus.NOT_FOUND.value();
-        } else if (ex instanceof DataConflicException) {
+        } else if (ex instanceof DataAlreadyExistsException) {
             return HttpStatus.CONFLICT.value();
         } else {
             return HttpStatus.INTERNAL_SERVER_ERROR.value();

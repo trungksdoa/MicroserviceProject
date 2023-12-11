@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Transactional
 @Repository
@@ -19,6 +20,8 @@ public interface CourseManagementRepository extends JpaRepository<StudentCourseR
     boolean existsByStudentIdAndCourseId(String studentId, String courseId);
     boolean existsByStudentId(String studentId);
 
+    Optional<StudentCourseRegistration> findByStudentId(String studentId);
 
+    void deleteByStudentId(String studentId);
 
 }

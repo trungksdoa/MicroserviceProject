@@ -20,10 +20,11 @@ import java.util.List;
 @Builder
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
 public class Course {
+
     @Id
     @Column(unique = true, nullable = false, name = "courseId")
     private String courseId;
@@ -39,18 +40,12 @@ public class Course {
     @Column(name = "catagoryId")
     private String catagoryId;
 
-//    @INumeric
-//    @Column(name = "totalAttempt")
-//    private String totalAttempt;
-
     @Column(name = "courseType")
     private String courseType;
-
 
     @Column(name = "dateCreated")
     @CreationTimestamp
     private LocalDateTime dateCreated;
-
 
     @Column(name = "dateModified")
     @UpdateTimestamp

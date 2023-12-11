@@ -15,33 +15,23 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 @Builder
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
 public class CourseMaterial {
     @Id
     @GeneratedValue(strategy = IDENTITY)
-    private int id;
-
+    private int materialId;
     private String title;
-
     private String content;
-
-
     @Column(nullable = true)
     private String image; //
-
-
     @CreationTimestamp
     private String dateCreated;
-
     @UpdateTimestamp
     private String dateModified;
-
     private String lastModifiedBy;
-
     private String courseId;
-
     @PostUpdate
     public void postUpdate() {
 

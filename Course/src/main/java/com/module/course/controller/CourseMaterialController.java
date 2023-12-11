@@ -1,8 +1,9 @@
 package com.module.course.controller;
 
-import com.module.course.Facade.CourseMaterialActionManagement;
-import com.module.course.dto.BaseRespone;
+import com.module.course.dto.BaseResponse;
+import com.module.course.dto.CourseMaterialDTO;
 import com.module.course.model.CourseMaterial;
+import com.module.course.servicesLogic.services.CourseMaterialServices;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,26 +15,20 @@ import org.springframework.web.bind.annotation.*;
 public class CourseMaterialController {
 
 
-    private final CourseMaterialActionManagement courseMaterialService;
+    private final CourseMaterialServices service;
 
     @Autowired
-    public CourseMaterialController(CourseMaterialActionManagement courseMaterialService) {
-        this.courseMaterialService = courseMaterialService;
+    public CourseMaterialController(CourseMaterialServices courseMaterialService) {
+        this.service = courseMaterialService;
     }
 
     @PostMapping("")
-    public ResponseEntity<BaseRespone> addCourseMaterial(@RequestBody @Valid CourseMaterial courseMaterial) {
-        return new ResponseEntity<>(BaseRespone.builder()
-                .message("Add content success")
-                .data(courseMaterialService.saveCourseMaterial(courseMaterial))
-                .build(), HttpStatus.OK);
+    public ResponseEntity<BaseResponse> addCourseMaterial(@RequestBody @Valid CourseMaterialDTO courseMaterial) {
+        return new ResponseEntity<>(service.doSave(courseMaterial), HttpStatus.OK);
     }
 
     @PatchMapping("{id}")
-    public ResponseEntity<BaseRespone> modifiedCourseMaterial(@PathVariable int id, @RequestBody CourseMaterial request) {
-        return new ResponseEntity<>(BaseRespone.builder()
-                .message("Modified content success")
-                .data(courseMaterialService.modifiedCourseMaterial(id, request))
-                .build(), HttpStatus.OK);
+    public ResponseEntity<BaseResponse> modifiedCourseMaterial(@RequestBody CourseMaterialDTO request) {
+        return new ResponseEntity<>(service.doUpdate(request), HttpStatus.OK);
     }
 }

@@ -11,7 +11,7 @@ import java.util.Optional;
 @Transactional
 @Repository
 public interface CourseMaterialRepository extends JpaRepository<CourseMaterial, Integer> {
-    Optional<CourseMaterial> findCourseMaterialById(int id);
+
     List<CourseMaterial> findByCourseId(String courseId);
     @Override
     Optional<CourseMaterial> findById(Integer integer);

@@ -2,7 +2,6 @@ package com.module.userservice.restTemplate;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.stereotype.Service;
@@ -13,19 +12,20 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class UrlServices {
+public class UrlServices implements UrlServiceInerface{
 
     private final DiscoveryClient discoveryClient;
 
-    @Value("${service.course.id}")
-    private String courseServiceId;
+//    @Value("${service.user.id}")
+//    private String userServiceId;
 
+
+    @Override
     public String getServicesUrl(String locate) {
-        String servicesId = getServicesId(locate);
-        List<ServiceInstance> instances = discoveryClient.getInstances(servicesId);
+        List<ServiceInstance> instances = discoveryClient.getInstances(locate);
 
         if (instances.isEmpty()) {
-            throw new RuntimeException("No instances for courseServiceId: " + servicesId);
+            throw new RuntimeException("No instances for courseServiceId: " + locate);
         }
         // Lấy instance đầu tiên
         ServiceInstance instance = instances.get(0);
@@ -34,10 +34,4 @@ public class UrlServices {
         return instance.getUri().toString();
     }
 
-    private String getServicesId(String locate) {
-        return switch (locate) {
-            case "course" -> courseServiceId;
-            default -> null;
-        };
-    }
 }

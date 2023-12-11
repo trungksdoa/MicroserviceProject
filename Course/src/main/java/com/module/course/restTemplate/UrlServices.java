@@ -13,18 +13,16 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class UrlServices {
+public class UrlServices implements UrlServiceInerface{
 
     private final DiscoveryClient discoveryClient;
 
-    @Value("${service.user.id}")
-    private String userServiceId;
-
+    @Override
     public String getServicesUrl(String locate) {
-        List<ServiceInstance> instances = discoveryClient.getInstances(getServicesId(locate));
+        List<ServiceInstance> instances = discoveryClient.getInstances(locate);
 
         if (instances.isEmpty()) {
-            throw new RuntimeException("No instances for courseServiceId: " + userServiceId);
+            throw new RuntimeException("No instances for courseServiceId: " + locate);
         }
         // Lấy instance đầu tiên
         ServiceInstance instance = instances.get(0);
@@ -33,12 +31,12 @@ public class UrlServices {
         return instance.getUri().toString();
     }
 
-    private String getServicesId(String locate) {
-        switch (locate) {
-            case "user":
-                return userServiceId;
-            default:
-                return null;
-        }
-    }
+//    private String getServicesId(String locate) {
+//        switch (locate) {
+//            case "user":
+//                return userServiceId;
+//            default:
+//                return null;
+//        }
+//    }
 }

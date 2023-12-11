@@ -1,62 +1,70 @@
 package com.module.course.controller;
 
-import com.module.course.dto.BaseRespone;
-import com.module.course.model.Course;
-import com.module.course.services.CourseManagementService;
+import com.module.course.ApiVersion;
+import com.module.course.dto.BaseResponse;
+import com.module.course.dto.CourseDTO;
+import com.module.course.restTemplate.RestCall;
+import com.module.course.restTemplate.UrlServiceInerface;
+import com.module.course.servicesLogic.services.CourseService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 @RestController
 @Validated
-@RequestMapping("/api/v1/course")
+@RequestMapping("/v1/api/course")
 public class CourseController {
 
 
-
-    private final CourseManagementService courseService;
-
+    private final UrlServiceInerface serviceInerface;
+    private final CourseService courseService;
+    private final RestTemplate restTemplate;
 
     @Autowired
-    public CourseController(CourseManagementService courseService) {
+    public CourseController(UrlServiceInerface serviceInerface, CourseService courseService, RestTemplate restTemplate) {
+        this.serviceInerface = serviceInerface;
         this.courseService = courseService;
+        this.restTemplate = restTemplate;
     }
 
+    @GetMapping("/test")
+    public ResponseEntity<BaseResponse> test() {
+
+        RestCall restCall = new RestCall(serviceInerface,restTemplate);
+
+        BaseResponse rest = restCall.call(HttpMethod.POST, "userService", "hello", ApiVersion.V1, "hello");
+        return new ResponseEntity<>(rest, HttpStatus.OK);
+    }
 
     @GetMapping("/{courseId}")
-    public ResponseEntity<BaseRespone> getCourse(@PathVariable String courseId,HttpStatus status) {
-        return new ResponseEntity<>(BaseRespone.builder()
-                .message("Get course successfully by" + " " + courseId)
-                .data(courseService.fetchCourseById(courseId))
-                .build(), HttpStatus.OK);
+    public ResponseEntity<BaseResponse> getCourse(@PathVariable String courseId) {
+        return new ResponseEntity<>(courseService.fetchCourseById(courseId), HttpStatus.OK);
     }
 
-    @GetMapping("")
-    public ResponseEntity<BaseRespone> getFullCourse() {
-        return new ResponseEntity<>(BaseRespone.builder()
-                .message("Get all course successfully")
-                .data(courseService.fetchAllCourses())
-                .build(), HttpStatus.OK);
+    @GetMapping()
+    public ResponseEntity<BaseResponse> getFullCourse() {
+        return new ResponseEntity<>(courseService.fetchAllCourse(), HttpStatus.OK);
     }
 
-    @PostMapping("")
-    public ResponseEntity<BaseRespone> createCourse(@RequestBody @Valid Course course) {
-        return new ResponseEntity<>(BaseRespone.builder()
-                .message("Add course successfully")
-                .data(courseService.addNewCourse(course))
-                .build(), HttpStatus.CREATED);
+    @PostMapping()
+    public ResponseEntity<BaseResponse> createCourse(@RequestBody @Valid CourseDTO course) {
+        return new ResponseEntity<>(courseService.doSave(course), HttpStatus.CREATED);
     }
 
-    @DeleteMapping("")
-    public ResponseEntity<BaseRespone> deleteCourse(@RequestBody @Valid Course course) {
-        courseService.removeCourseById(course);
-        return new ResponseEntity<>(BaseRespone.builder()
-                .message("Delete course successfully")
-                .data("OK")
-                .build(), HttpStatus.OK);
+    @PatchMapping()
+    public ResponseEntity<BaseResponse> updateCourse(@RequestBody @Valid CourseDTO course) {
+        return new ResponseEntity<>(courseService.doUpdate(course), HttpStatus.OK);
+    }
+
+    @DeleteMapping()
+    public ResponseEntity<BaseResponse> deleteCourse(@RequestBody @Valid CourseDTO course) {
+        ;
+        return new ResponseEntity<>(courseService.deleteCourse(course), HttpStatus.OK);
     }
 
 }
